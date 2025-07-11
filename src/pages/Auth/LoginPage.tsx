@@ -27,6 +27,13 @@ export const LoginPage: React.FC = () => {
 
     try {
       const success = await login(formData.email, formData.password);
+      if (formData.email === "citoyen@test.fr") {
+         navigate('/citizen/dashboard')
+      } else if (formData.email === "institution@gov.fr") {
+        navigate('/institution/dashboard')
+      } else if (formData.email === "admin@system.fr") {
+        navigate('/admin/dashboard')
+      }
       
       if (success) {
         toast.success('Connexion réussie !');

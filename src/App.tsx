@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AppLayout } from './components/Layout/AppLayout';
@@ -7,7 +7,7 @@ import { CitizenDashboard } from './pages/Citizen/Dashboard';
 import { CitizenProfile } from './pages/Citizen/Profile';
 import { CitizenAppointments } from './pages/Citizen/Appointments';
 import { CitizenRequests } from './pages/Citizen/Requests';
-import { EmergencyIdentification } from './pages/Emergency/EmergencyIdentification';
+import { EmergencyIdentificationPage } from './pages/Emergency/EmergencyIdentification';
 import { InstitutionDashboard } from './pages/Institution/Dashboard';
 import { InstitutionCitizens } from './pages/Institution/Citizens';
 import { InstitutionRequests } from './pages/Institution/Requests';
@@ -28,7 +28,7 @@ function App() {
           <Route path="/" element={<AppLayout><HomePage /></AppLayout>} />
           <Route path="/login" element={<AppLayout><LoginPage /></AppLayout>} />
           <Route path="/register" element={<AppLayout><RegisterPage /></AppLayout>} />
-          <Route path="/emergency" element={<AppLayout><EmergencyIdentification /></AppLayout>} />
+          <Route path="/emergency" element={<AppLayout><EmergencyIdentificationPage /></AppLayout>} />
 
           {/* Routes citoyens */}
           <Route path="/citizen/*" element={

@@ -1,0 +1,38 @@
+name: Versioning
+
+# Déclenche le workflow à chaque push sur la branche main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  versioning:
+    # Exécute le workflow sur un environnement ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      # Récupère le code source
+      - uses: actions/checkout@v3
+      # Installe Node.js
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      # Récupère la version actuelle du projet
+      - name: Get current version
+        run: |
+          # Lit le fichier package.json et récupère la version
+          echo "Current version: $(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')"
+      # Récupère les tags git
+      - name: Get git tags
+        run: |
+          # Affiche les tags git actuels
+          git tag
+      # Crée un tag avec la version actuelle
+      - name: Create version tag
+        run: |
+          # Récupère la version actuelle du projet
+          VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')
+          # Crée un tag avec la version actuelle
+          git tag -a $VERSION -m "Release version $VERSION"
+          # Pousse le tag vers le repository distant
+          git push origin $VERSION

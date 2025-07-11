@@ -6,7 +6,6 @@ import {
   Bell, 
   Settings, 
   LogOut, 
-  Menu,
   Search,
   Globe
 } from 'lucide-react';
@@ -46,6 +45,7 @@ export const Header: React.FC = () => {
               className="flex items-center space-x-3 cursor-pointer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => window.location.href = "/"}
             >
               <div className="relative">
                 <Shield className="h-8 w-8 text-blue-600" />

@@ -95,8 +95,10 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage, user, o
                   </span>
                 </div>
                 <button
+                  type='button'
                   onClick={onLogout}
                   className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label="Logout"
                 >
                   <LogOut className="h-4 w-4" />
                 </button>

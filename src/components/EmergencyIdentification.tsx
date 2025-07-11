@@ -1,9 +1,26 @@
 import React, { useState, useRef } from 'react';
-import { Camera, AlertTriangle, User, Phone, MapPin, Clock, Upload } from 'lucide-react';
+import { Camera, AlertTriangle, User, Phone, MapPin,  Upload } from 'lucide-react';
 
-export const EmergencyIdentification: React.FC = () => {
+interface EmergencyIdentificationProps {
+  userId: string | undefined;
+}
+
+export const EmergencyIdentification: React.FC<EmergencyIdentificationProps> = ({ userId }) => {
   const [isScanning, setIsScanning] = useState(false);
-  const [identificationResult, setIdentificationResult] = useState<any>(null);
+  interface IdentificationResult {
+    id: string;
+    firstName: string;
+    lastName: string;
+    birthDate: string;
+    address: string;
+    phone: string;
+    emergencyContact: string;
+    medicalInfo: string;
+    bloodType: string;
+    confidence: number;
+  }
+
+  const [identificationResult, setIdentificationResult] = useState<IdentificationResult | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -127,6 +144,8 @@ export const EmergencyIdentification: React.FC = () => {
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="hidden"
+                aria-label="Sélectionner une image pour l'identification d'urgence"
+                title="Cliquez pour sélectionner une image"
               />
               
               {imageFile && (
