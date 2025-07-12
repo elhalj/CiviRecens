@@ -10,29 +10,65 @@ jobs:
   versioning:
     # Exécute le workflow sur un environnement ubuntu-latest
     runs-on: ubuntu-latest
+
+    # Permissions nécessaires pour créer des tags
+    permissions:
+      contents: write
+
     steps:
-      # Récupère le code source
-      - uses: actions/checkout@v3
-      # Installe Node.js
-      - uses: actions/setup-node@v3
+      # Récupère le code source avec l'historique complet
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          node-version: "18"
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Configure Git avec les informations du bot GitHub
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Installe Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
       # Récupère la version actuelle du projet
       - name: Get current version
+        id: get_version
         run: |
-          # Lit le fichier package.json et récupère la version
-          echo "Current version: $(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')"
-      # Récupère les tags git
-      - name: Get git tags
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Vérifie si le tag existe déjà
+      - name: Check if tag exists
+        id: check_tag
         run: |
-          # Affiche les tags git actuels
-          git tag
-      # Crée un tag avec la version actuelle
+          VERSION=${{ steps.get_version.outputs.version }}
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists"
+            echo "tag_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag v$VERSION does not exist"
+            echo "tag_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Crée un tag avec la version actuelle (seulement si le tag n'existe pas)
       - name: Create version tag
+        if: steps.check_tag.outputs.tag_exists == 'false'
         run: |
-          # Récupère la version actuelle du projet
-          VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g')
-          # Crée un tag avec la version actuelle
-          git tag -a $VERSION -m "Release version $VERSION"
-          # Pousse le tag vers le repository distant
-          git push origin $VERSION
+          VERSION=${{ steps.get_version.outputs.version }}
+          echo "Creating tag v$VERSION"
+          git tag -a "v$VERSION" -m "Release version $VERSION"
+          git push origin "v$VERSION"
+
+      # Affiche un message si le tag existe déjà
+      - name: Tag already exists
+        if: steps.check_tag.outputs.tag_exists == 'true'
+        run: |
+          VERSION=${{ steps.get_version.outputs.version }}
+          echo "Tag v$VERSION already exists, skipping tag creation"
