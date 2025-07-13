@@ -1,6 +1,6 @@
 import express from 'express';
-import { StaffController } from '../controllers/Staff.controller';
-import { authenticateToken, authorizeAdmin } from '../middleware/auth.middleware';
+import { StaffController } from '../controllers/Staff.controller.js';
+import { authenticateToken, authorizeAdmin } from '../middleware/auth.middleware.js';
 
 const staff = new StaffController();
 

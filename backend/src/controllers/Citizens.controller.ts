@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import { NewCitizen } from '../models/Citizens.model';
-import { validateObjectId } from '../utils/validation';
-import { AppError } from '../utils/AppError';
-import TokenService from '../utils/token';
+import { NewCitizen } from '../models/Citizens.model.js';
+import { validateObjectId } from '../utils/validation.js';
+import { AppError } from '../utils/AppError.js';
+import TokenService from '../utils/token.js';
+import bcrypt from 'bcryptjs';
 
 export class CitizensController {
   // Create a new citizen
@@ -12,6 +13,7 @@ export class CitizensController {
         firstName,
         lastName,
         email,
+        password,
         birthDate,
         phoneNumber,
         address,
@@ -23,7 +25,7 @@ export class CitizensController {
       } = req.body;
 
       // Validate required fields
-      if (!firstName || !lastName || !email || !birthDate || !phoneNumber || !address || !emergencyProfile) {
+      if (!firstName || !lastName || !email || !password || !birthDate || !phoneNumber || !address || !emergencyProfile) {
         throw new AppError('Missing required fields', 400);
       }
 
@@ -35,6 +37,10 @@ export class CitizensController {
       // Validate email format
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         throw new AppError('Invalid email format', 400);
+      }
+      // Validate password
+      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/.test(password)) {
+        throw new AppError('Password must contain at least 8 characters, with one lowercase, one uppercase and one number', 400);
       }
 
       // Validate phone number format
@@ -62,11 +68,12 @@ export class CitizensController {
         throw new AppError('Invalid blood type', 400);
       }
 
-
+      const hashedPassword = await bcrypt.hash(password, 12)
       const citizenData = {
         firstName,
         lastName,
         email,
+        password: hashedPassword,
         birthDate,
         phoneNumber,
         address,
@@ -81,64 +88,95 @@ export class CitizensController {
       await citizen.save();
       const token = TokenService.generateToken(citizen.id)
       res.status(201).json({ data: citizen, token: token });
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof AppError) {
         res.status(error.statusCode).json({ message: error.message });
       } else {
+        console.error(error);
         res.status(500).json({ message: 'Internal server error' });
       }
     }
   }
   
-  // Sign up a new citizen
-  // async signUpCitizen(req: Request, res: Response) {
-  //   try {
-  //     const { email, password } = req.body;
-  //     if (!email || !password) {
-  //       throw new AppError('Missing required fields', 400);
-  //     }
+  
+  // Login a citizen
+  async login(req: Request, res: Response) {
+    const { email, password } = req.body;
+    try {
+      const citizen = await NewCitizen.findOne({ email });
+      if (!citizen) {
+        throw new AppError('Invalid email or password', 401);
+      }
+      const isMatch = await bcrypt.compare(password, citizen.password);
+      if (!isMatch) {
+        throw new AppError('Invalid email or password', 401);
+      }
+      const token = TokenService.generateToken(citizen.id)
+      res.json({ data: citizen, token: token });
+    } catch (error: unknown) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  }
+  
+  // Register a new citizen
+  async register(req: Request, res: Response) {
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      birthDate,
+      phoneNumber,
+      address,
+      emergencyProfile,
+      appointments,
+      requests,
+      administrativeRequests,
+      biometricData
+    } = req.body;
+    try {
+      // Validate email
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw new AppError('Invalid email format', 400);
+      }
+      // Validate password
+      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/.test(password)) {
+        throw new AppError('Password must contain at least 8 characters, with one lowercase, one uppercase and one number', 400);
+      }
+      const hashedPassword = await bcrypt.hash(password, 12)
+      const citizenData = {
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        birthDate,
+        phoneNumber,
+        address,
+        emergencyProfile,
+        appointments,
+        requests,
+        administrativeRequests,
+        biometricData
+      };
+      const citizen = new NewCitizen(citizenData);
+      await citizen.save();
+      const token = TokenService.generateToken(citizen.id)
+      res.status(201).json({ data: citizen, token: token });
+    } catch (error: unknown) {
+      if (error instanceof AppError) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+      }
+    }
+  }
 
-  //     const citizen = await NewCitizen.findOne({ email });
-  //     if (citizen) {
-  //       throw new AppError('Email already exists', 409);
-  //     }
-
-  //     const newCitizen = new NewCitizen({ email, password });
-  //     await newCitizen.save();
-  //     const token = TokenService.generateToken(newCitizen.id)
-  //     res.status(201).json({ token });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       res.status(error.statusCode).json({ message: error.message });
-  //     } else {
-  //       res.status(500).json({ message: 'Internal server error' });
-  //     }
-  //   }
-  // }
-
-  // Sign in an existing citizen
-  // async signInCitizen(req: Request, res: Response) {
-  //   try {
-  //     const { email, password } = req.body;
-  //     if (!email || !password) {
-  //       throw new AppError('Missing required fields', 400);
-  //     }
-
-  //     const citizen = await NewCitizen.findOne({ email }).select('+password');
-  //     if (!citizen || !(await citizen.comparePassword(password))) {
-  //       throw new AppError('Invalid email or password', 401);
-  //     }
-
-  //     const token = TokenService.generateToken(citizen.id)
-  //     res.json({ token });
-  //   } catch (error) {
-  //     if (error instanceof AppError) {
-  //       res.status(error.statusCode).json({ message: error.message });
-  //     } else {
-  //       res.status(500).json({ message: 'Internal server error' });
-  //     }
-  //   }
-  // }
 
   // Get all citizens
   async getAllCitizens(req: Request, res: Response) {

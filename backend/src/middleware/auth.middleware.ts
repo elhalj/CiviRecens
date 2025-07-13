@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { TokenPayload } from '../utils/token';
-import TokenService from '../utils/token';
+import { TokenPayload } from '../utils/token.js';
+import TokenService from '../utils/token.js';
 
 /**
  * Middleware to authenticate and authorize requests

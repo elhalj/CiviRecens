@@ -1,6 +1,6 @@
 import express from 'express';
-import { AppointmentController } from '../controllers/Appointment.controller';
-import { authenticateToken } from '../middleware/auth.middleware';
+import { AppointmentController } from '../controllers/Appointment.controller.js';
+import { authenticateToken } from '../middleware/auth.middleware.js';
 
 const appointment  = new AppointmentController()
 

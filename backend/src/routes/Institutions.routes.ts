@@ -1,6 +1,6 @@
 import express from 'express';
-import { InstitutionController } from '../controllers/Institution.controller';
-import { authenticateToken, authorizeAdmin } from '../middleware/auth.middleware';
+import { InstitutionController } from '../controllers/Institution.controller.js';
+import { authenticateToken, authorizeAdmin } from '../middleware/auth.middleware.js';
 
 const institution = new InstitutionController()
 

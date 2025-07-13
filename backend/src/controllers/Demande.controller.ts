@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { NewDemande} from '../models/Demande.model';
-import { validateObjectId } from '../utils/validation';
-import { AppError } from '../utils/AppError';
+import { NewDemande} from '../models/Demande.model.js';
+import { validateObjectId } from '../utils/validation.js';
+import { AppError } from '../utils/AppError.js';
 
 export class DemandeController {
   // Create a new request
