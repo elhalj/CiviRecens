@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { institution } from '../models/Institution.model';
-import { validateObjectId } from '../utils/validation';
-import { AppError } from '../utils/AppError'
+import { institution } from '../models/Institution.model.js';
+import { validateObjectId } from '../utils/validation.js';
+import { AppError } from '../utils/AppError.js'
 
 export class InstitutionController {
   // Create a new institution

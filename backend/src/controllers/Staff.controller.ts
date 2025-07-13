@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { NewStaff } from '../models/Staff.model';
-import { validateObjectId } from '../utils/validation';
-import { AppError } from '../utils/AppError';
+import { NewStaff } from '../models/Staff.model.js';
+import { validateObjectId } from '../utils/validation.js';
+import { AppError } from '../utils/AppError.js';
 
 export class StaffController {
   // Create a new staff member

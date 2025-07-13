@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import bcrypt from "bcryptjs";
 
 export interface Citizen {
   firstName: string;
@@ -22,12 +23,14 @@ export interface Citizen {
     }[];
   };
   administrativeRequests: string[];
+  password: string;
 }
 
 export interface CitizenDocument extends Citizen, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(password: string): Promise<boolean>;
 }
 
 const CitizenSchema: Schema = new Schema({
@@ -140,9 +143,26 @@ const CitizenSchema: Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Demande',
     // required: true
-  }]
+  }],
+  password: {
+    type: String,
+    required: true,
+    select: false,
+    minlength: 6,
+    maxlength: 50
+  }
 }, {
   timestamps: true,
+});
+
+// Hash the password before saving
+CitizenSchema.pre<CitizenDocument>('save', async function(next) {
+  if (this.isModified('password')) {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(this.password, salt);
+    this.password = hash;
+  }
+  next();
 });
 
 // Virtuals for populated fields
@@ -170,6 +190,9 @@ CitizenSchema.virtual('administrativeRequestsDetails', {
   foreignField: '_id'
 });
 
-
+// Compare the given password with the stored hash
+CitizenSchema.methods.comparePassword = async function(password: string): Promise<boolean> {
+  return bcrypt.compare(password, this.password);
+};
 
 export const NewCitizen =  mongoose.model<CitizenDocument>("Citizen", CitizenSchema);

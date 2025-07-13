@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
-import {routerCitizens} from './routes/Citizens.routes';
-import {routerDemandes} from './routes/Demandes.routes';
-import {routerInstitutions} from './routes/Institutions.routes';
-import {routerStaff} from './routes/Staff.routes';
-import { routerAppointment } from './routes/Appointment.routes';
+import {routerDemandes} from './routes/Demandes.routes.js';
+import {routerInstitutions} from './routes/Institutions.routes.js';
+import {routerStaff} from './routes/Staff.routes.js';
+import { routerAppointment } from './routes/Appointment.routes.js';
+import { routerCitizens } from './routes/Citizens.routes.js';
 
 dotenv.config();
 

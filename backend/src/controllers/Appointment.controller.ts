@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { NewAppointment} from '../models/Appointment.model';
-import { validateObjectId } from '../utils/validation';
-import { AppError } from '../utils/AppError';
+import { NewAppointment} from '../models/Appointment.model.js';
+import { validateObjectId } from '../utils/validation.js';
+import { AppError } from '../utils/AppError.js';
 
 export class AppointmentController {
   // Create a new appointment
