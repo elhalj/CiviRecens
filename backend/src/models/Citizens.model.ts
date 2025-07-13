@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-export interface Citizen extends Document {
+export interface Citizen {
   firstName: string;
   lastName: string;
   email: string;
@@ -13,7 +13,7 @@ export interface Citizen extends Document {
     facialVector: number[];
   };
   emergencyProfile: {
-    bloodType: string;
+    bloodType: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
     allergies: string[];
     emergencyContacts: {
       name: string;
@@ -24,35 +24,152 @@ export interface Citizen extends Document {
   administrativeRequests: string[];
 }
 
+export interface CitizenDocument extends Citizen, Document {
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 const CitizenSchema: Schema = new Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  birthDate: { type: Date, required: true },
-  phoneNumber: { type: String, required: true },
-  address: { type: String, required: true },
-  appointments: [{ type: Schema.Types.ObjectId, ref: "Appointment" }],
-  requests: [{ type: Schema.Types.ObjectId, ref: "Request" }],
+  firstName: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 2,
+    maxlength: 50
+  },
+  lastName: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 2,
+    maxlength: 50
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+    validate: {
+      validator: (v: string) => /^\S+@\S+\.\S+$/.test(v),
+      message: 'Email is invalid'
+    }
+  },
+  birthDate: {
+    type: Date,
+    required: true,
+    validate: {
+      validator: function(v: Date) {
+        return v < new Date();
+      },
+      message: 'Birth date must be in the past'
+    }
+  },
+  phoneNumber: {
+    type: String,
+    required: true,
+    trim: true,
+    validate: {
+      validator: (v: string) => /^\+?[1-9]\d{1,14}$/.test(v),
+      message: 'Phone number is invalid'
+    }
+  },
+  address: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 5,
+    maxlength: 200
+  },
+  appointments: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Appointment',
+    // required: truef
+  }],
+  requests: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Request',
+    // required: true
+  }],
   biometricData: {
-    facialVector: { type: [Number], select: false },
+    facialVector: {
+      type: [Number],
+      select: false,
+      validate: {
+        validator: function(v: number[]) {
+          return v.length === 128;
+        },
+        message: 'Facial vector must be 128-dimensional'
+      }
+    }
   },
   emergencyProfile: {
-    bloodType: String,
-    allergies: [String],
-    emergencyContacts: [
-      {
-        name: String,
-        phone: String,
-        relationship: String,
-      },
-    ],
-  },
-  administrativeRequests: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Demande",
+    bloodType: {
+      type: String,
+      required: true,
+      enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
     },
-  ],
+    allergies: [String],
+    emergencyContacts: [{
+      name: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 2,
+        maxlength: 100
+      },
+      phone: {
+        type: String,
+        required: true,
+        trim: true,
+        validate: {
+          validator: (v: string) => /^\+?[1-9]\d{1,14}$/.test(v),
+          message: 'Phone number is invalid'
+        }
+      },
+      relationship: {
+        type: String,
+        required: true,
+        trim: true,
+        maxlength: 50
+      }
+    }]
+  },
+  administrativeRequests: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Demande',
+    // required: true
+  }]
+}, {
+  timestamps: true,
 });
 
-export default mongoose.model<Citizen>("Citizen", CitizenSchema);
+// Virtuals for populated fields
+CitizenSchema.virtual('appointmentsDetails', {
+  ref: 'Appointment',
+  localField: '_id',
+  foreignField: 'citizen'
+});
+
+CitizenSchema.virtual('requestsDetails', {
+  ref: 'Request',
+  localField: '_id',
+  foreignField: 'citizen'
+});
+
+CitizenSchema.virtual('emergencyContactsDetails', {
+  ref: 'Citizen',
+  localField: 'emergencyProfile.emergencyContacts.phone',
+  foreignField: 'phoneNumber'
+});
+
+CitizenSchema.virtual('administrativeRequestsDetails', {
+  ref: 'Demande',
+  localField: 'administrativeRequests',
+  foreignField: '_id'
+});
+
+
+
+export const NewCitizen =  mongoose.model<CitizenDocument>("Citizen", CitizenSchema);
