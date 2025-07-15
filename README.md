@@ -1,76 +1,75 @@
 # CiviRecens
 
-CiviRecens est une application web complète qui gère les rendez-vous, les citoyens, les demandes et le personnel des institutions civiles.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Architecture du Projet
+CiviRecens est une application web moderne pour la gestion et le recensement des citoyens.
 
-Le projet est organisé selon une architecture front-end/back-end séparée :
+## Fonctionnalités
 
-### Backend (Node.js/Express)
-- **Routes** : `/api/appointments`, `/api/citizens`, `/api/demandes`, `/api/institutions`, `/api/staff`
-- **Structure** :
-  - `controllers/` : Logique métier
-  - `models/` : Définition des modèles de données
-  - `routes/` : Gestion des routes API
-  - `middleware/` : Fonctionnalités intermédiaires
-  - `types/` : Définitions de types TypeScript
-  - `utils/` : Fonctions utilitaires
+- Gestion des utilisateurs avec authentification
+- Interface utilisateur moderne et réactive
+- Système de gestion des données citoyennes
+- Tableaux de bord et rapports
 
-### Frontend
-Application web moderne avec une interface utilisateur dédiée.
+## Technologies utilisées
+
+- Frontend: React avec TypeScript
+- UI: Material-UI
+- State Management: Zustand
+- Authentification: JWT
 
 ## Installation
 
-### Backend
-1. Naviguez vers le dossier backend
-2. Installez les dépendances :
+1. Cloner le repository
+
 ```bash
-npm install
-```
-3. Configurez les variables d'environnement dans `.env`
-4. Lancez le serveur :
-```bash
-npm start
+git clone https://github.com/elhalj/CiviRecens.git
 ```
 
-### Frontend
-1. Naviguez vers le dossier frontend
-2. Installez les dépendances :
+2. Installer les dépendances
+
 ```bash
-npm install
-```
-3. Lancez l'application :
-```bash
-npm start
+cd CiviRecens
+cnpm install
 ```
 
-## Fonctionnalités Principales
+3. Démarrer le serveur de développement
 
-- Gestion des rendez-vous
-- Gestion des citoyens
-- Gestion des demandes
-- Gestion des institutions
-- Gestion du personnel
+```bash
+cnpm run dev
+```
 
-## Technologies Utilisées
+## Structure du projet
 
-- Backend : Node.js, Express.js, TypeScript
-- Frontend : (à préciser selon la configuration)
-- Base de données : (à préciser selon la configuration)
+```
+src/
+├── components/     # Composants réutilisables
+├── pages/          # Pages de l'application
+├── services/       # Services et API
+├── store/          # Configuration Redux
+└── utils/          # Utilitaires
+```
 
-## Configuration
+## Contribuer
 
-Le projet utilise des variables d'environnement pour la configuration. Créez un fichier `.env` dans le dossier backend avec les variables nécessaires.
+1. Créer une branche pour votre fonctionnalité
 
-## Contribution
+```bash
+git checkout -b feature/amazing-feature
+```
 
-Pour contribuer au projet :
-1. Fork le dépôt
-2. Créez votre branche de fonctionnalité (`git checkout -b feature/amazing-feature`)
-3. Commit vos changements (`git commit -m 'Add some amazing feature'`)
-4. Push à la branche (`git push origin feature/amazing-feature`)
-5. Ouvrez une Pull Request
+2. Commiter vos changements
+
+```bash
+git commit -m 'Ajout: nouvelle fonctionnalité'
+```
+
+3. Pousser la branche
+
+```bash
+git push origin feature/amazing-feature
+```
 
 ## Licence
 
-Ce projet est sous licence MIT - voir le fichier LICENSE pour plus de détails.
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
